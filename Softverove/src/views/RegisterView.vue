@@ -1,5 +1,5 @@
 <template>
-  <div class="register-container">
+  <div ref="container" class="register-container" >
     <div class="register-card">
       <h1>{{ isCompany ? 'Register Company' : 'Register Account' }}</h1>
 
@@ -105,9 +105,34 @@
   </div>
 </template>
 
-<script setup>
-import { reactive, ref } from 'vue'
 
+<script setup>
+import { reactive, ref, onMounted, onUnmounted } from 'vue'
+
+const container = ref(null)
+
+function adjustHeight() {
+  const header = document.querySelector('header')
+  const footer = document.querySelector('footer')
+
+  const headerHeight = header?.offsetHeight || 0
+  const footerHeight = footer?.offsetHeight || 0
+  const viewportHeight = window.innerHeight
+
+  const availableHeight = viewportHeight - (headerHeight + footerHeight)
+
+  if (container.value) {
+    container.value.style.minHeight = `${availableHeight}px`
+  }
+}
+
+onMounted(() => {
+  adjustHeight()
+  window.addEventListener('resize', adjustHeight)
+})
+onUnmounted(() => {
+  window.removeEventListener('resize', adjustHeight)
+})
 const isCompany = ref(false)
 
 const form = reactive({
@@ -190,7 +215,6 @@ function handleRegister() {
   display: flex;
   justify-content: center;
   align-items: center;
-  height: 100vh;
   background: linear-gradient(135deg, #42b883 0%, #2c3e50 100%);
   font-family: 'Inter', sans-serif;
   overflow: hidden;

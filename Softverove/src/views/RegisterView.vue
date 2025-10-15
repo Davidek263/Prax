@@ -107,32 +107,40 @@
 
 
 <script setup>
-import { reactive, ref, onMounted, onUnmounted } from 'vue'
+import { reactive, ref, onMounted, onBeforeUnmount } from 'vue'
 
 const container = ref(null)
 
-function adjustHeight() {
+//  Funkcia na dynamické prispôsobenie výšky kontajnera
+function adjustContainerHeight() {
   const header = document.querySelector('header')
   const footer = document.querySelector('footer')
 
-  const headerHeight = header?.offsetHeight || 0
-  const footerHeight = footer?.offsetHeight || 0
-  const viewportHeight = window.innerHeight
+  const headerHeight = header ? header.offsetHeight : 0
+  const footerHeight = footer ? footer.offsetHeight : 0
+  const windowHeight = window.innerHeight
 
-  const availableHeight = viewportHeight - (headerHeight + footerHeight)
+  // Výška, ktorú má mať register-container
+  const targetHeight = windowHeight - headerHeight - footerHeight
 
   if (container.value) {
-    container.value.style.minHeight = `${availableHeight}px`
+    container.value.style.minHeight = `${targetHeight}px`
+    container.value.style.height = `${targetHeight}px`
+    container.value.style.display = 'flex'
+    container.value.style.alignItems = 'center'
+    container.value.style.justifyContent = 'center'
   }
 }
 
 onMounted(() => {
-  adjustHeight()
-  window.addEventListener('resize', adjustHeight)
+  adjustContainerHeight()
+  window.addEventListener('resize', adjustContainerHeight)
 })
-onUnmounted(() => {
-  window.removeEventListener('resize', adjustHeight)
+
+onBeforeUnmount(() => {
+  window.removeEventListener('resize', adjustContainerHeight)
 })
+
 const isCompany = ref(false)
 
 const form = reactive({
